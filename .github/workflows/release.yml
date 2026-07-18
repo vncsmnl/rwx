@@ -1,0 +1,58 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    name: Build & Release Binaries
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust Cache
+        uses: swatinem/rust-cache@v2
+
+      - name: Build Release Binary
+        run: cargo build --release
+
+      - name: Install Packaging Tools
+        run: |
+          # Install cargo-binstall to speed up cargo-deb and cargo-generate-rpm installations
+          mkdir -p ~/.cargo/bin
+          curl -L https://github.com/cargo-bins/cargo-binstall/releases/latest/download/cargo-binstall-x86_64-unknown-linux-musl.tgz | tar -xz -C ~/.cargo/bin
+          export PATH="$HOME/.cargo/bin:$PATH"
+          cargo binstall -y cargo-deb cargo-generate-rpm
+
+      - name: Package Debian (.deb)
+        run: |
+          export PATH="$HOME/.cargo/bin:$PATH"
+          cargo deb
+
+      - name: Package RPM (.rpm)
+        run: |
+          export PATH="$HOME/.cargo/bin:$PATH"
+          cargo generate-rpm
+
+      - name: Create Generic Linux Archive (.tar.gz)
+        run: |
+          mkdir -p target/dist
+          tar -czf target/dist/rwx-linux-x86_64.tar.gz -C target/release rwx
+          cp target/debian/*.deb target/dist/
+          cp target/generate-rpm/*.rpm target/dist/
+
+      - name: Upload binaries to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: target/dist/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

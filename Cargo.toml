@@ -16,3 +16,19 @@ crossterm = "0.29.0"
 clap = { version = "4.6.2", features = ["derive"] }
 walkdir = "2.5.0"
 nix = { version = "0.31.3", features = ["user", "fs"] }
+
+[package.metadata.deb]
+maintainer = "@vncsmnl"
+assets = [
+    ["target/release/rwx", "usr/bin/rwx", "755"],
+    ["LICENSE", "usr/share/doc/rwx/LICENSE", "644"],
+    ["README.md", "usr/share/doc/rwx/README.md", "644"],
+]
+
+[package.metadata.generate-rpm]
+assets = [
+    { source = "target/release/rwx", dest = "/usr/bin/rwx", mode = "755" },
+    { source = "LICENSE", dest = "/usr/share/licenses/rwx/LICENSE", mode = "644" },
+    { source = "README.md", dest = "/usr/share/doc/rwx/README.md", mode = "644" },
+]
+

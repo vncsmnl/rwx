@@ -22,24 +22,48 @@ An interactive Unix file permissions and ownership TUI manager built in Rust wit
 
 ## Installation
 
-### Prerequisites
-
-To build `rwx`, you will need:
-- **Rust and Cargo** (2024 Edition) installed on your system.
-- A Unix-like operating system (macOS, Linux, BSD) because the tool relies on Unix-specific features (via the `nix` and standard library system calls).
-
-### Building from Source
-
-Clone the repository and run:
-
+### 1. From Crates.io
+Since `rwx` is published on [crates.io](https://crates.io/crates/rwx), you can install it using Cargo:
 ```bash
-cargo build --release
+cargo install rwx
 ```
 
-The compiled binary will be located at `target/release/rwx`. You can copy it to your path:
+### 2. Debian / Ubuntu (APT)
+Download the latest `.deb` package from the [GitHub Releases](https://github.com/vncsmnl/rwx/releases) and install it:
+```bash
+sudo apt install ./rwx_*_amd64.deb
+```
+
+### 3. Fedora / RHEL / CentOS (DNF)
+Download the latest `.rpm` package from the [GitHub Releases](https://github.com/vncsmnl/rwx/releases) and install it:
+```bash
+sudo dnf install ./rwx-*.x86_64.rpm
+```
+
+### 4. Snap (Universal Linux)
+`rwx` is available on the Snap Store (needs classic confinement to inspect/modify system files):
+```bash
+sudo snap install rwx --classic
+```
+
+### 5. Pre-compiled Binaries (Cargo Binstall)
+If you have `cargo-binstall` installed, you can quickly download and install pre-compiled binaries directly from GitHub Releases:
+```bash
+cargo binstall rwx
+```
+
+### 6. Building from Source
+If you want to compile `rwx` yourself:
+
+#### Prerequisites
+- **Rust and Cargo** (2024 Edition) installed on your system.
+- A Unix-like operating system (macOS, Linux, BSD) because the tool relies on Unix-specific features.
 
 ```bash
-cp target/release/rwx /usr/local/bin/
+git clone https://github.com/vncsmnl/rwx.git
+cd rwx
+cargo build --release
+sudo cp target/release/rwx /usr/local/bin/
 ```
 
 ---
