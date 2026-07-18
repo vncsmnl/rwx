@@ -8,7 +8,7 @@ use ratatui::{
 
 use crate::app::{App, AppMode, Focusable};
 
-pub fn render(f: &mut Frame, app: &App) {
+pub fn render(f: &mut Frame, app: &mut App) {
     match app.mode {
         AppMode::Browser => render_browser(f, app),
         AppMode::Editor => render_editor(f, app),
@@ -41,7 +41,7 @@ fn draw_checkbox(checked: bool, is_focused: bool) -> Span<'static> {
     }
 }
 
-fn render_browser(f: &mut Frame, app: &App) {
+fn render_browser(f: &mut Frame, app: &mut App) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
@@ -113,7 +113,7 @@ fn render_browser(f: &mut Frame, app: &App) {
                 .border_type(BorderType::Rounded)
                 .border_style(Style::default().fg(Color::DarkGray)),
         );
-    f.render_widget(list, chunks[1]);
+    f.render_stateful_widget(list, chunks[1], &mut app.list_state);
 
     // 3. Footer Help Bar
     let footer_text = Line::from(vec![

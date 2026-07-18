@@ -5,6 +5,7 @@ use std::os::unix::fs::chown;
 use nix::unistd::{Uid, Gid, User, Group};
 
 use crate::permissions::FilePermissions;
+use ratatui::widgets::ListState;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum AppMode {
@@ -37,6 +38,7 @@ pub struct App {
     pub current_dir: PathBuf,
     pub items: Vec<BrowserItem>,
     pub selected_item_idx: usize,
+    pub list_state: ListState,
     
     // Editor state
     pub target_path: PathBuf,
@@ -85,6 +87,7 @@ impl App {
             current_dir,
             items: Vec::new(),
             selected_item_idx: 0,
+            list_state: ListState::default(),
             
             target_path: PathBuf::new(),
             is_dir: false,
@@ -160,6 +163,7 @@ impl App {
         } else if self.selected_item_idx >= self.items.len() {
             self.selected_item_idx = self.items.len() - 1;
         }
+        self.list_state.select(Some(self.selected_item_idx));
 
         Ok(())
     }

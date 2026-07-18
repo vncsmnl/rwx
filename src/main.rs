@@ -122,11 +122,13 @@ fn run_loop<B: ratatui::backend::Backend>(
                         KeyCode::Up | KeyCode::Char('k') => {
                             if app.selected_item_idx > 0 {
                                 app.selected_item_idx -= 1;
+                                app.list_state.select(Some(app.selected_item_idx));
                             }
                         }
                         KeyCode::Down | KeyCode::Char('j') => {
                             if app.selected_item_idx + 1 < app.items.len() {
                                 app.selected_item_idx += 1;
+                                app.list_state.select(Some(app.selected_item_idx));
                             }
                         }
                         KeyCode::Enter => {
@@ -135,11 +137,11 @@ fn run_loop<B: ratatui::backend::Backend>(
                                 let path = item.path.clone();
                                 if item.is_dir {
                                     app.current_dir = path;
+                                    app.selected_item_idx = 0;
                                     if let Err(e) = app.load_directory() {
                                         app.message = Some((e, true));
                                         app.show_popup = true;
                                     }
-                                    app.selected_item_idx = 0;
                                 } else {
                                     if let Err(e) = app.open_target(path) {
                                         app.message = Some((e, true));
