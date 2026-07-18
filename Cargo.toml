@@ -1,0 +1,13 @@
+[package]
+name = "rwx"
+version = "1.0.0"
+edition = "2026"
+license = "MIT"
+authors = "@vncsmnl"
+
+[dependencies]
+ratatui = "0.30.2"
+crossterm = "0.29.0"
+clap = { version = "4.6.2", features = ["derive"] }
+walkdir = "2.5.0"
+nix = { version = "0.31.3", features = ["user", "fs"] }
