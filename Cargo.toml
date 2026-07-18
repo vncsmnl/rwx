@@ -1,9 +1,9 @@
 [package]
 name = "rwx"
 version = "1.0.0"
-edition = "2026"
+edition = "2024"
 license = "MIT"
-authors = "@vncsmnl"
+authors = ["@vncsmnl"]
 
 [dependencies]
 ratatui = "0.30.2"
