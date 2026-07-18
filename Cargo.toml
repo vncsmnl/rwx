@@ -4,9 +4,9 @@ version = "1.0.2"
 edition = "2024"
 license = "MIT"
 authors = ["@vncsmnl"]
-description = "A file explorer for your terminal"
-keywords = ["file-manager", "terminal", "tui"]
-categories = ["command-line-utilities"]
+description = "A terminal-based utility for inspecting and modifying file and directory permissions, ownership, and other metadata."
+keywords = ["terminal", "tui", "files", "directories", "permissions", "ownership", "metadata"]
+categories = ["command-line-utilities", "development-tools"]
 repository = "https://github.com/vncsmnl/rwx"
 readme = "README.md"
 
