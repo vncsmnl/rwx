@@ -4,6 +4,11 @@ version = "1.0.0"
 edition = "2024"
 license = "MIT"
 authors = ["@vncsmnl"]
+description = "A file explorer for your terminal"
+keywords = ["file-manager", "terminal", "tui"]
+categories = ["command-line-utilities"]
+repository = "https://github.com/vncsmnl/rwx"
+readme = "README.md"
 
 [dependencies]
 ratatui = "0.30.2"
