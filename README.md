@@ -4,6 +4,8 @@ An interactive Unix file permissions and ownership TUI manager built in Rust wit
 
 `rwx` simplifies inspect/audit operations on files and folders, enabling developers and administrators to quickly visualize permissions, toggle individual bits interactively, change owners/groups, and safely apply changes recursively.
 
+![rwx](assets/rwx.jpg)
+
 ---
 
 ## Features
