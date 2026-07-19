@@ -42,19 +42,13 @@ Download the latest `.rpm` package from the [GitHub Releases](https://github.com
 sudo dnf install ./rwx-*.x86_64.rpm
 ```
 
-### 4. Snap (Universal Linux)
-`rwx` is available on the Snap Store (needs classic confinement to inspect/modify system files):
-```bash
-sudo snap install rwx --classic
-```
-
-### 5. Pre-compiled Binaries (Cargo Binstall)
+### 4. Pre-compiled Binaries (Cargo Binstall)
 If you have `cargo-binstall` installed, you can quickly download and install pre-compiled binaries directly from GitHub Releases:
 ```bash
 cargo binstall rwx
 ```
 
-### 6. Building from Source
+### 5. Building from Source
 If you want to compile `rwx` yourself:
 
 #### Prerequisites
