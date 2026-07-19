@@ -24,26 +24,26 @@ An interactive Unix file permissions and ownership TUI manager built in Rust wit
 
 ## Installation
 
-### 1. From Crates.io
+### 1. Homebrew (macOS & Linux)
+You can install `rwx` using Homebrew via our custom tap:
+```bash
+brew install vncsmnl/tap/rwx
+```
+
+### 2. Shell Script (macOS & Linux)
+Install the pre-compiled binary via a shell script:
+```bash
+curl --proto '=https' --tlsv1.2 -LsSf https://github.com/vncsmnl/rwx/releases/latest/download/rwx-installer.sh | sh
+```
+
+### 3. From Crates.io
 Since `rwx` is published on [crates.io](https://crates.io/crates/rwx), you can install it using Cargo:
 ```bash
 cargo install rwx
 ```
 
-### 2. Debian / Ubuntu (APT)
-Download the latest `.deb` package from the [GitHub Releases](https://github.com/vncsmnl/rwx/releases) and install it:
-```bash
-sudo apt install ./rwx_*_amd64.deb
-```
-
-### 3. Fedora / RHEL / CentOS (DNF)
-Download the latest `.rpm` package from the [GitHub Releases](https://github.com/vncsmnl/rwx/releases) and install it:
-```bash
-sudo dnf install ./rwx-*.x86_64.rpm
-```
-
 ### 4. Pre-compiled Binaries (Cargo Binstall)
-If you have `cargo-binstall` installed, you can quickly download and install pre-compiled binaries directly from GitHub Releases:
+If you have `cargo-binstall` installed, you can quickly download and install pre-compiled binaries directly:
 ```bash
 cargo binstall rwx
 ```
