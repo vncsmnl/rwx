@@ -20,6 +20,8 @@ An interactive Unix file permissions and ownership TUI manager built in Rust wit
 - **Real-Time Previews**: Instantly view the symbolic permission representation (e.g., `drwxr-xr-x` or `-rwsr-xr-x`) as you edit.
 - **Panic Resilience**: Registers custom panic hooks to automatically restore your terminal state (raw mode, screen buffering) in case of unexpected errors.
 
+![rwx](assets/rwx.gif)
+
 ---
 
 ## Installation
