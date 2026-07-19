@@ -8,6 +8,7 @@ description = "A terminal-based utility for inspecting and modifying file and di
 keywords = ["terminal", "tui", "permissions", "ownership", "metadata"]
 categories = ["command-line-utilities", "development-tools"]
 repository = "https://github.com/vncsmnl/rwx"
+homepage = "https://github.com/vncsmnl/rwx"
 readme = "README.md"
 
 [dependencies]
@@ -16,6 +17,11 @@ crossterm = "0.29.0"
 clap = { version = "4.6.2", features = ["derive"] }
 walkdir = "2.5.0"
 nix = { version = "0.31.3", features = ["user", "fs"] }
+
+# The profile that 'dist' will build with
+[profile.dist]
+inherits = "release"
+lto = "thin"
 
 [package.metadata.deb]
 maintainer = "@vncsmnl"
