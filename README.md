@@ -6,10 +6,10 @@ An interactive Unix file permissions and ownership TUI manager built in Rust wit
 
 ![rwx](assets/rwx.jpg)
 
-[![Rust](https://img.shields.io/badge/Rust-%23000000.svg?e&logo=rust&logoColor=white)](#)
-[![macOS](https://img.shields.io/badge/macOS-000000?logo=apple&logoColor=white)](#)
-[![Linux](https://img.shields.io/badge/Linux-000000?logo=linux&logoColor=white)](#)
-[![Homebrew](https://img.shields.io/badge/Homebrew-000000?logo=homebrew&logoColor=white)](#)
+[![Rust](https://img.shields.io/badge/Rust-%23333333.svg?e&logo=rust&logoColor=white&style=flat)](#)
+[![macOS](https://img.shields.io/badge/macOS-333333?logo=apple&logoColor=white&style=flat)](#)
+[![Linux](https://img.shields.io/badge/Linux-333333?logo=linux&logoColor=white&style=flat)](#)
+[![Homebrew](https://img.shields.io/badge/Homebrew-333333?logo=homebrew&logoColor=white&style=flat)](#)
 
 [![GitHub All Releases](https://img.shields.io/github/downloads/vncsmnl/rwx/total?branch=main&label=Downloads&logo=GitHub&logoColor=ffffff&labelColor=282828&style=flat)](https://github.com/vncsmnl/rwx/releases)
 [![Latest release](https://img.shields.io/github/v/release/vncsmnl/rwx?branch=main&label=Latest%20release&logo=GitHub&logoColor=ffffff&labelColor=282828&style=flat)](https://github.com/vncsmnl/rwx/releases)
