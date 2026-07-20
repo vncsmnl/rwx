@@ -6,15 +6,16 @@ An interactive Unix file permissions and ownership TUI manager built in Rust wit
 
 ![rwx](assets/rwx.jpg)
 
-[![Rust](https://img.shields.io/badge/Rust-%23333333.svg?e&logo=rust&logoColor=white&style=flat)](#)
-[![macOS](https://img.shields.io/badge/macOS-333333?logo=apple&logoColor=white&style=flat)](#)
-[![Linux](https://img.shields.io/badge/Linux-333333?logo=linux&logoColor=white&style=flat)](#)
-[![Homebrew](https://img.shields.io/badge/Homebrew-333333?logo=homebrew&logoColor=white&style=flat)](#)
+[![Rust](https://img.shields.io/badge/Rust-%23282828.svg?e&logo=rust&logoColor=white&style=flat)](#)
+[![macOS](https://img.shields.io/badge/macOS-282828?logo=apple&logoColor=white&style=flat)](#)
+[![Linux](https://img.shields.io/badge/Linux-282828?logo=linux&logoColor=white&style=flat)](#)
+[![Homebrew](https://img.shields.io/badge/Homebrew-282828?logo=homebrew&logoColor=white&style=flat)](#)
 
-[![GitHub All Releases](https://img.shields.io/github/downloads/vncsmnl/rwx/total?branch=main&label=Downloads&logo=GitHub&logoColor=ffffff&labelColor=282828&style=flat)](https://github.com/vncsmnl/rwx/releases)
-[![Latest release](https://img.shields.io/github/v/release/vncsmnl/rwx?branch=main&label=Latest%20release&logo=GitHub&logoColor=ffffff&labelColor=282828&style=flat)](https://github.com/vncsmnl/rwx/releases)
-[![GitHub contributors](https://img.shields.io/github/contributors/vncsmnl/rwx?branch=main&label=Contributors&logo=GitHub&logoColor=ffffff&labelColor=282828&style=flat)](https://github.com/vncsmnl/rwx/graphs/contributors)
-[![GitHub issues](https://img.shields.io/github/issues/vncsmnl/rwx?branch=main&label=Issues&logo=GitHub&logoColor=ffffff&labelColor=282828&style=flat)](https://github.com/vncsmnl/rwx/issues)
+
+[![GitHub All Releases](https://img.shields.io/github/downloads/vncsmnl/rwx/total?label=Downloads&logo=GitHub&logoColor=ffffff&labelColor=282828&color=5cd35b&style=flat)](https://github.com/vncsmnl/rwx/releases)
+[![Latest release](https://img.shields.io/github/v/release/vncsmnl/rwx?branch=main&label=Latest%20release&logo=GitHub&logoColor=ffffff&labelColor=282828&color=3977f6&style=flat)](https://github.com/vncsmnl/rwx/releases)
+[![GitHub issues](https://img.shields.io/github/issues/vncsmnl/rwx?branch=main&label=Issues&logo=GitHub&logoColor=ffffff&labelColor=282828&color=764adb&style=flat)](https://github.com/vncsmnl/rwx/issues)
+[![GitHub contributors](https://img.shields.io/github/contributors/vncsmnl/rwx?branch=main&label=Contributors&logo=GitHub&logoColor=ffffff&labelColor=282828&color=5cd35b&style=flat)](https://github.com/vncsmnl/rwx/graphs/contributors)
 [![GitHub License](https://img.shields.io/github/license/vncsmnl/rwx?branch=master&label=License&logo=GitHub&logoColor=ffffff&labelColor=282828&color=informational&style=flat)](https://github.com/vncsmnl/rwx/blob/main/LICENSE)
 
 ---
