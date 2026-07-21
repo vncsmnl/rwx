@@ -19,3 +19,6 @@ publish-jobs = ["homebrew"]
 install-path = "CARGO_HOME"
 # Whether to install an updater program
 install-updater = false
+# Allow custom edits in CI workflow files (like release.yml)
+allow-dirty = ["ci"]
+
