@@ -1,0 +1,52 @@
+name: ⚡ Refactoring & Performance
+description: Suggest code restructuring, performance optimizations, or dependency updates for rwx
+title: "[ENHANCEMENT]: "
+labels: ["enhancement", "performance", "triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Propose architectural, refactoring, or performance improvements for `rwx`!
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: 🎯 Scope of Change
+      description: Select the area of improvement.
+      options:
+        - Performance Optimization (Rendering speed, file scanning, memory)
+        - Code Architecture & Refactoring (Modularization, Rust patterns)
+        - Dependency Management (Cargo crate upgrades, feature flags)
+        - Testing & CI/CD Workflows
+        - Error Handling & Panic Safety
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 🔍 Motivation & Goal
+      description: Explain why this refactoring or optimization is beneficial.
+      placeholder: Describe the current bottleneck or code clarity issue...
+    validations:
+      required: true
+
+  - type: textarea
+    id: details
+    attributes:
+      label: 💡 Proposed Changes & Technical Details
+      description: Details of the implementation plan or benchmarks.
+      placeholder: Outline how this change should be implemented...
+      render: rust
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: 📋 Pre-submission Checklist
+      options:
+        - label: I have verified this improvement won't introduce breaking changes to existing users.
+          required: true

@@ -1,0 +1,73 @@
+name: 💡 Feature Request
+description: Propose a new feature, improvement, or idea for rwx
+title: "[FEAT]: "
+labels: ["enhancement", "triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Thank you for proposing an improvement to `rwx`!
+        We welcome ideas that make Unix permission management faster, safer, and more intuitive.
+
+  - type: dropdown
+    id: feature_category
+    attributes:
+      label: 🗂️ Feature Category
+      description: What domain does this request relate to?
+      options:
+        - TUI UX & Visual Design (Theme, layout, Keybindings, ratatui widgets)
+        - File Permissions & Special Bits (ACLs, Extended Attributes, suid/sgid/sticky)
+        - Ownership & User/Group Resolution
+        - CLI Flags & Automation / Batch Mode
+        - Performance & Navigation Speed
+        - Cross-Platform Support / Compatibility
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: ❓ Is your feature request related to a problem?
+      description: Describe the problem or pain point you encounter.
+      placeholder: I always get frustrated when trying to...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: 🚀 Describe the solution you'd like
+      description: Clear and concise description of what you want to happen or how it should work.
+      placeholder: Add a shortcut key or flag that allows...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 🔄 Describe alternatives you've considered
+      description: Any alternative solutions or workarounds you've tried or considered.
+      placeholder: Currently, I use `chmod ...` manually outside the TUI...
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: 📌 Additional Context or Mockups
+      description: Add any mockups, screenshots, code snippets, or reference tools.
+      placeholder: Attach images or extra details here...
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: 📋 Pre-submission Checklist
+      options:
+        - label: I have searched existing feature requests to ensure this is not a duplicate.
+          required: true
+        - label: I am willing to contribute or test a PR for this feature if requested.
+          required: false

@@ -1,0 +1,121 @@
+name: 🐛 Bug Report
+description: Create a report to help us reproduce and fix a bug in rwx
+title: "[BUG]: "
+labels: ["bug", "triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Thank you for helping improve `rwx`!
+        Please fill out this form as accurately as possible. The more detail you provide, the faster we can identify and resolve the issue.
+
+  - type: input
+    id: version
+    attributes:
+      label: 📦 rwx Version
+      description: Which version of `rwx` are you using? (Run `rwx --version` or check `cargo --version`).
+      placeholder: e.g. 1.0.4 or main branch commit hash
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: 💻 Operating System & Architecture
+      description: Select your operating system and CPU architecture.
+      options:
+        - Linux (x86_64)
+        - Linux (aarch64 / ARM64)
+        - macOS (Apple Silicon - M1/M2/M3/M4)
+        - macOS (Intel)
+        - FreeBSD / OpenBSD / NetBSD
+        - Other (specify in description)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: install_method
+    attributes:
+      label: 🛠️ Installation Method
+      description: How was `rwx` installed on your system?
+      options:
+        - Homebrew (`brew install vncsmnl/tap/rwx`)
+        - Shell Installer Script (`curl ... | sh`)
+        - Cargo (`cargo install rwx` / `cargo binstall rwx`)
+        - Built from Source (`git clone` & `cargo build --release`)
+        - Linux Package (`.deb` / `.rpm`)
+        - Pre-built Release Binary (GitHub Releases tarball)
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: 🧩 Affected Component
+      description: Which part of `rwx` is malfunctioning?
+      options:
+        - Interactive TUI (File Browser / File Navigation)
+        - Permissions Grid Editor (Checkboxes for u/g/o r/w/x)
+        - Octal Permissions Input (e.g. 0755, 4755)
+        - Ownership Management (chown / chgrp / User & Group selection)
+        - Recursive Operations (`-R` / recursive toggle)
+        - CLI Arguments & Terminal Startup / State Restoration
+        - Other / Unsure
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: 📝 Summary & Bug Description
+      description: Provide a clear and concise description of what happened.
+      placeholder: Explain what went wrong or unexpected behavior observed...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 🔄 Steps to Reproduce
+      description: Step-by-step instructions to reproduce the issue.
+      placeholder: |
+        1. Open terminal and run `rwx /path/to/folder`
+        2. Select file `example.txt`
+        3. Press `[Key]` to toggle permission ...
+        4. Observe error or unexpected UI state ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 🎯 Expected Behavior
+      description: What did you expect to happen instead?
+      placeholder: Describe the expected outcome...
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 📜 Terminal Output / Logs / Backtrace
+      description: Paste any error messages, terminal logs, or backtraces. (Run with `RUST_BACKTRACE=1 rwx ...` if panic occurs).
+      placeholder: Paste output here...
+      render: shell
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: 📋 Pre-submission Checklist
+      description: Please confirm the following points before submitting.
+      options:
+        - label: I have searched existing issues (open and closed) to ensure this is not a duplicate.
+          required: true
+        - label: I am using the latest version of `rwx` or verified the issue on the `main` branch.
+          required: true
+        - label: I have provided sufficient detail for someone else to reproduce the issue.
+          required: true

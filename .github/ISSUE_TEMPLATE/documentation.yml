@@ -1,0 +1,51 @@
+name: 📚 Documentation Improvement
+description: Suggest improvements or report errors in README, manual, or CLI help
+title: "[DOCS]: "
+labels: ["documentation", "triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Help us keep `rwx` documentation clear and up to date!
+
+  - type: dropdown
+    id: doc_location
+    attributes:
+      label: 📍 Where is the documentation issue?
+      description: Select the affected documentation location.
+      options:
+        - README.md
+        - CLI `--help` text / clap documentation
+        - Installation guides (Homebrew, Cargo, Shell script, Linux packages)
+        - Keybindings & Usage guides
+        - Code Comments / Rustdoc API docs
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: issue_description
+    attributes:
+      label: 📝 What needs to be changed or added?
+      description: Describe what is missing, outdated, typo-prone, or misleading.
+      placeholder: Describe the documentation issue...
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed_fix
+    attributes:
+      label: ✍️ Proposed Content / Fix
+      description: Provide the exact text, correction, or code snippet you would like to see.
+      placeholder: Proposed updated text...
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: 📋 Pre-submission Checklist
+      options:
+        - label: I have verified the current documentation before submitting.
+          required: true
