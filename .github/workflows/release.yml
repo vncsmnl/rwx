@@ -273,8 +273,30 @@ jobs:
           ANNOUNCEMENT_BODY: "${{ fromJson(steps.host.outputs.manifest).announcement_github_body }}"
           RELEASE_COMMIT: "${{ github.sha }}"
         run: |
-          # Write and read notes from a file to avoid quoting breaking things
-          echo "$ANNOUNCEMENT_BODY" > $RUNNER_TEMP/notes.txt
+          # Extract version from tag (e.g. v1.0.4 -> 1.0.4)
+          TAG="${{ needs.plan.outputs.tag }}"
+          VERSION="${TAG#v}"
+
+          # Extract changelog section for the version if CHANGELOG.md exists
+          if [ -f CHANGELOG.md ]; then
+            awk -v ver="$VERSION" '
+              BEGIN { hdr = "## [" ver "]" }
+              index($0, hdr) == 1 { flag=1; next }
+              flag && index($0, "## ") == 1 { exit }
+              flag { print }
+            ' CHANGELOG.md > $RUNNER_TEMP/changelog_section.txt
+          fi
+
+          # Build release notes: CHANGELOG notes + cargo-dist auto-generated body (install instructions & SHA256 checksums)
+          if [ -s $RUNNER_TEMP/changelog_section.txt ]; then
+            cat $RUNNER_TEMP/changelog_section.txt > $RUNNER_TEMP/notes.txt
+            echo "" >> $RUNNER_TEMP/notes.txt
+            echo "---" >> $RUNNER_TEMP/notes.txt
+            echo "" >> $RUNNER_TEMP/notes.txt
+            echo "$ANNOUNCEMENT_BODY" >> $RUNNER_TEMP/notes.txt
+          else
+            echo "$ANNOUNCEMENT_BODY" > $RUNNER_TEMP/notes.txt
+          fi
 
           gh release create "${{ needs.plan.outputs.tag }}" --target "$RELEASE_COMMIT" $PRERELEASE_FLAG --title "$ANNOUNCEMENT_TITLE" --notes-file "$RUNNER_TEMP/notes.txt" artifacts/*
 
