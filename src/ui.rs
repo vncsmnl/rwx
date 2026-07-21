@@ -505,7 +505,7 @@ fn render_editor(f: &mut Frame, app: &App) {
         Span::styled(" [B] ", Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD)),
         Span::raw("Back to browser  "),
         Span::styled(" [755, 644] ", Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD)),
-        Span::raw("Edit Octal直接"),
+        Span::raw("Edit Octal directly"),
     ]);
     let shortcut_para = Paragraph::new(shortcut_text)
         .alignment(Alignment::Right)
