@@ -14,7 +14,7 @@ impl PermissionBits {
         }
     }
 
-    pub fn to_bits(&self) -> u32 {
+    pub fn to_bits(self) -> u32 {
         let mut bits = 0;
         if self.read {
             bits |= 4;
@@ -51,7 +51,7 @@ impl FilePermissions {
         }
     }
 
-    pub fn to_mode(&self) -> u32 {
+    pub fn to_mode(self) -> u32 {
         let mut mode = 0;
         mode |= self.owner.to_bits() << 6;
         mode |= self.group.to_bits() << 3;
@@ -69,12 +69,12 @@ impl FilePermissions {
         mode
     }
 
-    pub fn to_octal(&self) -> String {
+    pub fn to_octal(self) -> String {
         let mode = self.to_mode();
         format!("{:04o}", mode)
     }
 
-    pub fn to_symbolic(&self, is_dir: bool) -> String {
+    pub fn to_symbolic(self, is_dir: bool) -> String {
         let mut s = String::with_capacity(10);
         s.push(if is_dir { 'd' } else { '-' });
 
@@ -125,6 +125,21 @@ mod tests {
     use super::*;
 
     #[test]
+    fn test_permission_bits() {
+        let bits = PermissionBits::from_bits(7);
+        assert!(bits.read && bits.write && bits.execute);
+        assert_eq!(bits.to_bits(), 7);
+
+        let bits = PermissionBits::from_bits(4);
+        assert!(bits.read && !bits.write && !bits.execute);
+        assert_eq!(bits.to_bits(), 4);
+
+        let bits = PermissionBits::from_bits(0);
+        assert!(!bits.read && !bits.write && !bits.execute);
+        assert_eq!(bits.to_bits(), 0);
+    }
+
+    #[test]
     fn test_mode_conversions() {
         let perm = FilePermissions::from_mode(0o755);
         assert_eq!(perm.to_octal(), "0755");
@@ -145,6 +160,18 @@ mod tests {
     }
 
     #[test]
+    fn test_special_bits_without_exec() {
+        let setuid_no_exec = FilePermissions::from_mode(0o4644);
+        assert_eq!(setuid_no_exec.to_symbolic(false), "-rwSr--r--");
+
+        let setgid_no_exec = FilePermissions::from_mode(0o2644);
+        assert_eq!(setgid_no_exec.to_symbolic(false), "-rw-r-Sr--");
+
+        let sticky_no_exec = FilePermissions::from_mode(0o1644);
+        assert_eq!(sticky_no_exec.to_symbolic(false), "-rw-r--r-T");
+    }
+
+    #[test]
     fn test_from_octal_str() {
         let perm = FilePermissions::from_octal_str("755").unwrap();
         assert_eq!(perm.to_mode(), 0o755);
@@ -154,5 +181,6 @@ mod tests {
 
         assert!(FilePermissions::from_octal_str("888").is_none());
         assert!(FilePermissions::from_octal_str("10000").is_none());
+        assert!(FilePermissions::from_octal_str("abc").is_none());
     }
 }

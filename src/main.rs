@@ -1,13 +1,13 @@
+use clap::Parser;
 use std::io;
 use std::path::PathBuf;
-use clap::Parser;
 
 use crossterm::{
     event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
     execute,
-    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
+    terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
 };
-use ratatui::{backend::CrosstermBackend, Terminal};
+use ratatui::{Terminal, backend::CrosstermBackend};
 
 mod app;
 mod permissions;
@@ -17,12 +17,20 @@ use app::{App, AppMode, Focusable};
 use permissions::FilePermissions;
 
 #[derive(Parser, Debug)]
-#[command(name = "rwx", version, about = "Interactive file permissions TUI manager")]
+#[command(
+    name = "rwx",
+    version,
+    about = "Interactive file permissions TUI manager"
+)]
 struct Args {
     #[arg(help = "Path to the file or directory to inspect/edit")]
     path: Option<PathBuf>,
 
-    #[arg(short = 'R', long = "recursive", help = "Apply changes recursively (has effect when target is a directory)")]
+    #[arg(
+        short = 'R',
+        long = "recursive",
+        help = "Apply changes recursively (has effect when target is a directory)"
+    )]
     recursive: bool,
 }
 
@@ -87,7 +95,9 @@ fn run_loop<B: ratatui::backend::Backend>(
     app: &mut App,
 ) -> io::Result<()> {
     loop {
-        terminal.draw(|f| ui::render(f, app)).map_err(|e| io::Error::new(io::ErrorKind::Other, e.to_string()))?;
+        terminal
+            .draw(|f| ui::render(f, app))
+            .map_err(|e| io::Error::other(e.to_string()))?;
 
         if let Event::Key(key) = event::read()? {
             if key.kind == event::KeyEventKind::Release {
@@ -114,97 +124,103 @@ fn run_loop<B: ratatui::backend::Backend>(
 
             // Handle keys
             match app.mode {
-                AppMode::Browser => {
-                    match key.code {
-                        KeyCode::Char('q') | KeyCode::Esc => {
-                            return Ok(());
+                AppMode::Browser => match key.code {
+                    KeyCode::Char('q') | KeyCode::Esc => {
+                        return Ok(());
+                    }
+                    KeyCode::Up | KeyCode::Char('k') => {
+                        if app.selected_item_idx > 0 {
+                            app.selected_item_idx -= 1;
+                            app.list_state.select(Some(app.selected_item_idx));
                         }
-                        KeyCode::Up | KeyCode::Char('k') => {
-                            if app.selected_item_idx > 0 {
-                                app.selected_item_idx -= 1;
-                                app.list_state.select(Some(app.selected_item_idx));
-                            }
+                    }
+                    KeyCode::Down | KeyCode::Char('j') => {
+                        if app.selected_item_idx + 1 < app.items.len() {
+                            app.selected_item_idx += 1;
+                            app.list_state.select(Some(app.selected_item_idx));
                         }
-                        KeyCode::Down | KeyCode::Char('j') => {
-                            if app.selected_item_idx + 1 < app.items.len() {
-                                app.selected_item_idx += 1;
-                                app.list_state.select(Some(app.selected_item_idx));
-                            }
-                        }
-                        KeyCode::Enter => {
-                            if !app.items.is_empty() {
-                                let item = &app.items[app.selected_item_idx];
-                                let path = item.path.clone();
-                                if item.is_dir {
-                                    app.current_dir = path;
-                                    app.selected_item_idx = 0;
-                                    if let Err(e) = app.load_directory() {
-                                        app.message = Some((e, true));
-                                        app.show_popup = true;
-                                    }
-                                } else {
-                                    if let Err(e) = app.open_target(path) {
-                                        app.message = Some((e, true));
-                                        app.show_popup = true;
-                                    }
+                    }
+                    KeyCode::Enter => {
+                        if !app.items.is_empty() {
+                            let item = &app.items[app.selected_item_idx];
+                            let path = item.path.clone();
+                            if item.is_dir {
+                                app.current_dir = path;
+                                app.selected_item_idx = 0;
+                                if let Err(e) = app.load_directory() {
+                                    app.message = Some((e, true));
+                                    app.show_popup = true;
                                 }
-                            }
-                        }
-                        KeyCode::Char('s') | KeyCode::Char('S') => {
-                            let dir = app.current_dir.clone();
-                            if let Err(e) = app.open_target(dir) {
+                            } else if let Err(e) = app.open_target(path) {
                                 app.message = Some((e, true));
                                 app.show_popup = true;
                             }
                         }
-                        _ => {}
                     }
-                }
+                    KeyCode::Char('s') | KeyCode::Char('S') => {
+                        let dir = app.current_dir.clone();
+                        if let Err(e) = app.open_target(dir) {
+                            app.message = Some((e, true));
+                            app.show_popup = true;
+                        }
+                    }
+                    _ => {}
+                },
                 AppMode::Editor => {
-                    if is_input_focused && !matches!(key.code, KeyCode::Esc | KeyCode::Enter | KeyCode::Up | KeyCode::Down | KeyCode::Tab | KeyCode::BackTab) {
+                    if is_input_focused
+                        && !matches!(
+                            key.code,
+                            KeyCode::Esc
+                                | KeyCode::Enter
+                                | KeyCode::Up
+                                | KeyCode::Down
+                                | KeyCode::Tab
+                                | KeyCode::BackTab
+                        )
+                    {
                         match key.code {
-                            KeyCode::Char(c) => {
-                                match app.focus {
-                                    Focusable::OctalInput => {
-                                        if c.is_digit(8) && app.octal_input.len() < 4 {
-                                            app.octal_input.push(c);
-                                            if let Some(new_perms) = FilePermissions::from_octal_str(&app.octal_input) {
-                                                app.permissions = new_perms;
-                                            }
-                                        }
-                                    }
-                                    Focusable::OwnerInput => {
-                                        if c.is_alphanumeric() || c == '-' || c == '_' {
-                                            app.owner_input.push(c);
-                                        }
-                                    }
-                                    Focusable::GroupInput => {
-                                        if c.is_alphanumeric() || c == '-' || c == '_' {
-                                            app.group_input.push(c);
-                                        }
-                                    }
-                                    _ => {}
-                                }
-                            }
-                            KeyCode::Backspace => {
-                                match app.focus {
-                                    Focusable::OctalInput => {
-                                        app.octal_input.pop();
-                                        if let Some(new_perms) = FilePermissions::from_octal_str(&app.octal_input) {
+                            KeyCode::Char(c) => match app.focus {
+                                Focusable::OctalInput => {
+                                    if c.is_digit(8) && app.octal_input.len() < 4 {
+                                        app.octal_input.push(c);
+                                        if let Some(new_perms) =
+                                            FilePermissions::from_octal_str(&app.octal_input)
+                                        {
                                             app.permissions = new_perms;
-                                        } else if app.octal_input.is_empty() {
-                                            app.permissions = FilePermissions::from_mode(0);
                                         }
                                     }
-                                    Focusable::OwnerInput => {
-                                        app.owner_input.pop();
-                                    }
-                                    Focusable::GroupInput => {
-                                        app.group_input.pop();
-                                    }
-                                    _ => {}
                                 }
-                            }
+                                Focusable::OwnerInput
+                                    if c.is_alphanumeric() || c == '-' || c == '_' =>
+                                {
+                                    app.owner_input.push(c);
+                                }
+                                Focusable::GroupInput
+                                    if c.is_alphanumeric() || c == '-' || c == '_' =>
+                                {
+                                    app.group_input.push(c);
+                                }
+                                _ => {}
+                            },
+                            KeyCode::Backspace => match app.focus {
+                                Focusable::OctalInput => {
+                                    app.octal_input.pop();
+                                    if let Some(new_perms) =
+                                        FilePermissions::from_octal_str(&app.octal_input)
+                                    {
+                                        app.permissions = new_perms;
+                                    } else if app.octal_input.is_empty() {
+                                        app.permissions = FilePermissions::from_mode(0);
+                                    }
+                                }
+                                Focusable::OwnerInput => {
+                                    app.owner_input.pop();
+                                }
+                                Focusable::GroupInput => {
+                                    app.group_input.pop();
+                                }
+                                _ => {}
+                            },
                             _ => {}
                         }
                     } else {
@@ -252,7 +268,9 @@ fn run_loop<B: ratatui::backend::Backend>(
                                     Focusable::QuitButton => {
                                         return Ok(());
                                     }
-                                    Focusable::OctalInput | Focusable::OwnerInput | Focusable::GroupInput => {
+                                    Focusable::OctalInput
+                                    | Focusable::OwnerInput
+                                    | Focusable::GroupInput => {
                                         // Simple enter to start editing (not strictly needed since clicking it is enough)
                                     }
                                     _ => {
@@ -275,7 +293,10 @@ fn run_loop<B: ratatui::backend::Backend>(
 fn apply_action(app: &mut App) {
     match app.apply_changes() {
         Ok(_) => {
-            app.message = Some(("Permissions and ownership updated successfully!".to_string(), false));
+            app.message = Some((
+                "Permissions and ownership updated successfully!".to_string(),
+                false,
+            ));
             app.show_popup = true;
         }
         Err(e) => {

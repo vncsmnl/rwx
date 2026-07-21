@@ -1,9 +1,9 @@
 use ratatui::{
+    Frame,
     layout::{Alignment, Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     text::{Line, Span, Text},
     widgets::{Block, BorderType, Borders, Cell, Clear, List, ListItem, Paragraph, Row, Table},
-    Frame,
 };
 
 use crate::app::{App, AppMode, Focusable};
@@ -33,7 +33,9 @@ fn draw_checkbox(checked: bool, is_focused: bool) -> Span<'static> {
         Span::styled(
             format!(" [{}] ", check_char),
             if checked {
-                Style::default().fg(Color::Green).add_modifier(Modifier::BOLD)
+                Style::default()
+                    .fg(Color::Green)
+                    .add_modifier(Modifier::BOLD)
             } else {
                 Style::default().fg(Color::DarkGray)
             },
@@ -52,15 +54,28 @@ fn render_browser(f: &mut Frame, app: &mut App) {
         .split(f.area());
 
     // 1. Header
-    let header_text = vec![
-        Line::from(vec![
-            Span::styled(" rwx ", Style::default().bg(Color::Blue).fg(Color::White).add_modifier(Modifier::BOLD)),
-            Span::raw(" | Directory Selector: "),
-            Span::styled(app.current_dir.to_string_lossy().to_string(), Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD)),
-        ])
-    ];
-    let header = Paragraph::new(header_text)
-        .block(Block::default().borders(Borders::ALL).border_type(BorderType::Rounded).border_style(Style::default().fg(Color::Blue)));
+    let header_text = vec![Line::from(vec![
+        Span::styled(
+            " rwx ",
+            Style::default()
+                .bg(Color::Blue)
+                .fg(Color::White)
+                .add_modifier(Modifier::BOLD),
+        ),
+        Span::raw(" | Directory Selector: "),
+        Span::styled(
+            app.current_dir.to_string_lossy().to_string(),
+            Style::default()
+                .fg(Color::Cyan)
+                .add_modifier(Modifier::BOLD),
+        ),
+    ])];
+    let header = Paragraph::new(header_text).block(
+        Block::default()
+            .borders(Borders::ALL)
+            .border_type(BorderType::Rounded)
+            .border_style(Style::default().fg(Color::Blue)),
+    );
     f.render_widget(header, chunks[0]);
 
     // 2. File List
@@ -70,9 +85,14 @@ fn render_browser(f: &mut Frame, app: &mut App) {
         .enumerate()
         .map(|(idx, item)| {
             let is_selected = idx == app.selected_item_idx;
-            
+
             let prefix = if is_selected {
-                Span::styled("  ▶ ", Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD))
+                Span::styled(
+                    "  ▶ ",
+                    Style::default()
+                        .fg(Color::Yellow)
+                        .add_modifier(Modifier::BOLD),
+                )
             } else {
                 Span::raw("    ")
             };
@@ -80,7 +100,9 @@ fn render_browser(f: &mut Frame, app: &mut App) {
             let name_span = if item.is_dir {
                 Span::styled(
                     format!("{}/", item.name),
-                    Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD),
+                    Style::default()
+                        .fg(Color::Cyan)
+                        .add_modifier(Modifier::BOLD),
                 )
             } else {
                 Span::styled(&item.name, Style::default().fg(Color::White))
@@ -105,30 +127,54 @@ fn render_browser(f: &mut Frame, app: &mut App) {
         })
         .collect();
 
-    let list = List::new(items)
-        .block(
-            Block::default()
-                .title(" Files and Directories ")
-                .borders(Borders::ALL)
-                .border_type(BorderType::Rounded)
-                .border_style(Style::default().fg(Color::DarkGray)),
-        );
+    let list = List::new(items).block(
+        Block::default()
+            .title(" Files and Directories ")
+            .borders(Borders::ALL)
+            .border_type(BorderType::Rounded)
+            .border_style(Style::default().fg(Color::DarkGray)),
+    );
     f.render_stateful_widget(list, chunks[1], &mut app.list_state);
 
     // 3. Footer Help Bar
     let footer_text = Line::from(vec![
-        Span::styled(" [↑/↓, j/k] ", Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD)),
+        Span::styled(
+            " [↑/↓, j/k] ",
+            Style::default()
+                .fg(Color::Cyan)
+                .add_modifier(Modifier::BOLD),
+        ),
         Span::raw("Navigate  "),
-        Span::styled(" [Enter] ", Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD)),
+        Span::styled(
+            " [Enter] ",
+            Style::default()
+                .fg(Color::Cyan)
+                .add_modifier(Modifier::BOLD),
+        ),
         Span::raw("Open/Select  "),
-        Span::styled(" [S] ", Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD)),
+        Span::styled(
+            " [S] ",
+            Style::default()
+                .fg(Color::Cyan)
+                .add_modifier(Modifier::BOLD),
+        ),
         Span::raw("Edit current folder  "),
-        Span::styled(" [Q] ", Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD)),
+        Span::styled(
+            " [Q] ",
+            Style::default()
+                .fg(Color::Cyan)
+                .add_modifier(Modifier::BOLD),
+        ),
         Span::raw("Quit"),
     ]);
     let footer = Paragraph::new(footer_text)
         .alignment(Alignment::Center)
-        .block(Block::default().borders(Borders::ALL).border_type(BorderType::Rounded).border_style(Style::default().fg(Color::DarkGray)));
+        .block(
+            Block::default()
+                .borders(Borders::ALL)
+                .border_type(BorderType::Rounded)
+                .border_style(Style::default().fg(Color::DarkGray)),
+        );
     f.render_widget(footer, chunks[2]);
 }
 
@@ -145,19 +191,38 @@ fn render_editor(f: &mut Frame, app: &App) {
     // 1. Header (File Info)
     let file_type = if app.is_dir { "Directory" } else { "File" };
     let size_str = format_size(app.file_size);
-    let header_text = vec![
-        Line::from(vec![
-            Span::styled(" Target: ", Style::default().fg(Color::DarkGray)),
-            Span::styled(app.target_path.file_name().unwrap_or_default().to_string_lossy().to_string(), Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD)),
-            Span::styled(format!(" ({})", file_type), Style::default().fg(Color::Cyan)),
-            Span::raw(" | Size: "),
-            Span::styled(size_str, Style::default().fg(Color::White)),
-            Span::raw(" | Full Path: "),
-            Span::styled(app.target_path.to_string_lossy().to_string(), Style::default().fg(Color::DarkGray).add_modifier(Modifier::ITALIC)),
-        ])
-    ];
-    let header = Paragraph::new(header_text)
-        .block(Block::default().borders(Borders::ALL).border_type(BorderType::Rounded).border_style(Style::default().fg(Color::Blue)));
+    let header_text = vec![Line::from(vec![
+        Span::styled(" Target: ", Style::default().fg(Color::DarkGray)),
+        Span::styled(
+            app.target_path
+                .file_name()
+                .unwrap_or_default()
+                .to_string_lossy()
+                .to_string(),
+            Style::default()
+                .fg(Color::Yellow)
+                .add_modifier(Modifier::BOLD),
+        ),
+        Span::styled(
+            format!(" ({})", file_type),
+            Style::default().fg(Color::Cyan),
+        ),
+        Span::raw(" | Size: "),
+        Span::styled(size_str, Style::default().fg(Color::White)),
+        Span::raw(" | Full Path: "),
+        Span::styled(
+            app.target_path.to_string_lossy().to_string(),
+            Style::default()
+                .fg(Color::DarkGray)
+                .add_modifier(Modifier::ITALIC),
+        ),
+    ])];
+    let header = Paragraph::new(header_text).block(
+        Block::default()
+            .borders(Borders::ALL)
+            .border_type(BorderType::Rounded)
+            .border_style(Style::default().fg(Color::Blue)),
+    );
     f.render_widget(header, chunks[0]);
 
     // Split main section vertically into left (permissions grid) and right (metadata/inputs)
@@ -186,35 +251,108 @@ fn render_editor(f: &mut Frame, app: &App) {
         Cell::from(Line::from("Write (w)").alignment(Alignment::Center)),
         Cell::from(Line::from("Execute (x)").alignment(Alignment::Center)),
     ])
-    .style(Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD));
+    .style(
+        Style::default()
+            .fg(Color::Cyan)
+            .add_modifier(Modifier::BOLD),
+    );
 
     let rows = vec![
         Row::new(vec![
-            Cell::from(" Owner (u) ").style(Style::default().fg(Color::White).add_modifier(Modifier::BOLD)),
-            Cell::from(Line::from(draw_checkbox(app.permissions.owner.read, app.focus == Focusable::OwnerRead)).alignment(Alignment::Center)),
-            Cell::from(Line::from(draw_checkbox(app.permissions.owner.write, app.focus == Focusable::OwnerWrite)).alignment(Alignment::Center)),
-            Cell::from(Line::from(draw_checkbox(app.permissions.owner.execute, app.focus == Focusable::OwnerExecute)).alignment(Alignment::Center)),
+            Cell::from(" Owner (u) ").style(
+                Style::default()
+                    .fg(Color::White)
+                    .add_modifier(Modifier::BOLD),
+            ),
+            Cell::from(
+                Line::from(draw_checkbox(
+                    app.permissions.owner.read,
+                    app.focus == Focusable::OwnerRead,
+                ))
+                .alignment(Alignment::Center),
+            ),
+            Cell::from(
+                Line::from(draw_checkbox(
+                    app.permissions.owner.write,
+                    app.focus == Focusable::OwnerWrite,
+                ))
+                .alignment(Alignment::Center),
+            ),
+            Cell::from(
+                Line::from(draw_checkbox(
+                    app.permissions.owner.execute,
+                    app.focus == Focusable::OwnerExecute,
+                ))
+                .alignment(Alignment::Center),
+            ),
         ]),
         Row::new(vec![
-            Cell::from(" Group (g) ").style(Style::default().fg(Color::White).add_modifier(Modifier::BOLD)),
-            Cell::from(Line::from(draw_checkbox(app.permissions.group.read, app.focus == Focusable::GroupRead)).alignment(Alignment::Center)),
-            Cell::from(Line::from(draw_checkbox(app.permissions.group.write, app.focus == Focusable::GroupWrite)).alignment(Alignment::Center)),
-            Cell::from(Line::from(draw_checkbox(app.permissions.group.execute, app.focus == Focusable::GroupExecute)).alignment(Alignment::Center)),
+            Cell::from(" Group (g) ").style(
+                Style::default()
+                    .fg(Color::White)
+                    .add_modifier(Modifier::BOLD),
+            ),
+            Cell::from(
+                Line::from(draw_checkbox(
+                    app.permissions.group.read,
+                    app.focus == Focusable::GroupRead,
+                ))
+                .alignment(Alignment::Center),
+            ),
+            Cell::from(
+                Line::from(draw_checkbox(
+                    app.permissions.group.write,
+                    app.focus == Focusable::GroupWrite,
+                ))
+                .alignment(Alignment::Center),
+            ),
+            Cell::from(
+                Line::from(draw_checkbox(
+                    app.permissions.group.execute,
+                    app.focus == Focusable::GroupExecute,
+                ))
+                .alignment(Alignment::Center),
+            ),
         ]),
         Row::new(vec![
-            Cell::from(" Others (o) ").style(Style::default().fg(Color::White).add_modifier(Modifier::BOLD)),
-            Cell::from(Line::from(draw_checkbox(app.permissions.others.read, app.focus == Focusable::OthersRead)).alignment(Alignment::Center)),
-            Cell::from(Line::from(draw_checkbox(app.permissions.others.write, app.focus == Focusable::OthersWrite)).alignment(Alignment::Center)),
-            Cell::from(Line::from(draw_checkbox(app.permissions.others.execute, app.focus == Focusable::OthersExecute)).alignment(Alignment::Center)),
+            Cell::from(" Others (o) ").style(
+                Style::default()
+                    .fg(Color::White)
+                    .add_modifier(Modifier::BOLD),
+            ),
+            Cell::from(
+                Line::from(draw_checkbox(
+                    app.permissions.others.read,
+                    app.focus == Focusable::OthersRead,
+                ))
+                .alignment(Alignment::Center),
+            ),
+            Cell::from(
+                Line::from(draw_checkbox(
+                    app.permissions.others.write,
+                    app.focus == Focusable::OthersWrite,
+                ))
+                .alignment(Alignment::Center),
+            ),
+            Cell::from(
+                Line::from(draw_checkbox(
+                    app.permissions.others.execute,
+                    app.focus == Focusable::OthersExecute,
+                ))
+                .alignment(Alignment::Center),
+            ),
         ]),
     ];
 
-    let grid_table = Table::new(rows, [
-        Constraint::Length(14),
-        Constraint::Length(12),
-        Constraint::Length(12),
-        Constraint::Length(12),
-    ])
+    let grid_table = Table::new(
+        rows,
+        [
+            Constraint::Length(14),
+            Constraint::Length(12),
+            Constraint::Length(12),
+            Constraint::Length(12),
+        ],
+    )
     .header(header_row)
     .block(
         Block::default()
@@ -239,14 +377,13 @@ fn render_editor(f: &mut Frame, app: &App) {
         spec_sticky,
     ]);
 
-    let special_block = Paragraph::new(special_line)
-        .block(
-            Block::default()
-                .title(" Special Bits ")
-                .borders(Borders::ALL)
-                .border_type(BorderType::Rounded)
-                .border_style(Style::default().fg(Color::DarkGray)),
-        );
+    let special_block = Paragraph::new(special_line).block(
+        Block::default()
+            .title(" Special Bits ")
+            .borders(Borders::ALL)
+            .border_type(BorderType::Rounded)
+            .border_style(Style::default().fg(Color::DarkGray)),
+    );
     f.render_widget(special_block, perm_layout[1]);
 
     // Recursive Toggle Checkbox
@@ -255,16 +392,14 @@ fn render_editor(f: &mut Frame, app: &App) {
         rec_checkbox,
         Span::raw(" Apply recursively (chown/chmod) to all contents"),
     ]);
-    let rec_block = Paragraph::new(rec_line)
-        .block(
-            Block::default()
-                .title(" Options ")
-                .borders(Borders::ALL)
-                .border_type(BorderType::Rounded)
-                .border_style(Style::default().fg(Color::DarkGray)),
-        );
+    let rec_block = Paragraph::new(rec_line).block(
+        Block::default()
+            .title(" Options ")
+            .borders(Borders::ALL)
+            .border_type(BorderType::Rounded)
+            .border_style(Style::default().fg(Color::DarkGray)),
+    );
     f.render_widget(rec_block, perm_layout[2]);
-
 
     // RIGHT PANEL: Representation & Ownership Inputs
     let right_chunks = Layout::default()
@@ -283,9 +418,11 @@ fn render_editor(f: &mut Frame, app: &App) {
     } else {
         app.octal_input.clone()
     };
-    
+
     // Check if the input is currently valid
-    let octal_valid = u32::from_str_radix(&app.octal_input, 8).is_ok() && app.octal_input.len() >= 3 && app.octal_input.len() <= 4;
+    let octal_valid = u32::from_str_radix(&app.octal_input, 8).is_ok()
+        && app.octal_input.len() >= 3
+        && app.octal_input.len() <= 4;
     let octal_border_style = if is_octal_focused {
         Style::default().fg(Color::Cyan)
     } else if !octal_valid && !app.octal_input.is_empty() {
@@ -296,12 +433,22 @@ fn render_editor(f: &mut Frame, app: &App) {
 
     let octal_para = Paragraph::new(Line::from(vec![
         Span::raw("  "),
-        Span::styled(octal_display, Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD)),
+        Span::styled(
+            octal_display,
+            Style::default()
+                .fg(Color::Yellow)
+                .add_modifier(Modifier::BOLD),
+        ),
         if !octal_valid && !app.octal_input.is_empty() {
-            Span::styled(" (invalid octal)", Style::default().fg(Color::Red).add_modifier(Modifier::ITALIC))
+            Span::styled(
+                " (invalid octal)",
+                Style::default()
+                    .fg(Color::Red)
+                    .add_modifier(Modifier::ITALIC),
+            )
         } else {
             Span::raw("")
-        }
+        },
     ]))
     .block(
         Block::default()
@@ -317,15 +464,26 @@ fn render_editor(f: &mut Frame, app: &App) {
     let mut info_lines = vec![
         Line::from(vec![
             Span::raw("  Symbolic: "),
-            Span::styled(sym_repr, Style::default().fg(Color::Green).add_modifier(Modifier::BOLD)),
+            Span::styled(
+                sym_repr,
+                Style::default()
+                    .fg(Color::Green)
+                    .add_modifier(Modifier::BOLD),
+            ),
         ]),
         Line::from(vec![
             Span::raw("  Current:  "),
-            Span::styled(app.orig_permissions.to_octal(), Style::default().fg(Color::DarkGray)),
+            Span::styled(
+                app.orig_permissions.to_octal(),
+                Style::default().fg(Color::DarkGray),
+            ),
             Span::raw(" ("),
-            Span::styled(app.orig_permissions.to_symbolic(app.is_dir), Style::default().fg(Color::DarkGray)),
+            Span::styled(
+                app.orig_permissions.to_symbolic(app.is_dir),
+                Style::default().fg(Color::DarkGray),
+            ),
             Span::raw(")"),
-        ])
+        ]),
     ];
 
     // Detect if changes were made
@@ -335,23 +493,26 @@ fn render_editor(f: &mut Frame, app: &App) {
     let changes_pending = permissions_changed || owner_changed || group_changed;
 
     if changes_pending {
-        info_lines.push(Line::from(vec![
-            Span::styled("  ⚠️  Pending Changes", Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD)),
-        ]));
+        info_lines.push(Line::from(vec![Span::styled(
+            "  ⚠️  Pending Changes",
+            Style::default()
+                .fg(Color::Yellow)
+                .add_modifier(Modifier::BOLD),
+        )]));
     } else {
-        info_lines.push(Line::from(vec![
-            Span::styled("  ✓  Saved", Style::default().fg(Color::DarkGray)),
-        ]));
+        info_lines.push(Line::from(vec![Span::styled(
+            "  ✓  Saved",
+            Style::default().fg(Color::DarkGray),
+        )]));
     }
 
-    let info_para = Paragraph::new(info_lines)
-        .block(
-            Block::default()
-                .title(" Symbolic & Status ")
-                .borders(Borders::ALL)
-                .border_type(BorderType::Rounded)
-                .border_style(Style::default().fg(Color::DarkGray)),
-        );
+    let info_para = Paragraph::new(info_lines).block(
+        Block::default()
+            .title(" Symbolic & Status ")
+            .borders(Borders::ALL)
+            .border_type(BorderType::Rounded)
+            .border_style(Style::default().fg(Color::DarkGray)),
+    );
     f.render_widget(info_para, right_chunks[1]);
 
     // Owner and Group Inputs
@@ -410,7 +571,7 @@ fn render_editor(f: &mut Frame, app: &App) {
         .borders(Borders::ALL)
         .border_type(BorderType::Rounded)
         .border_style(Style::default().fg(Color::DarkGray));
-    
+
     // We can draw paragraphs for each inside the inner area
     let inner_rect = owner_group_block.inner(right_chunks[2]);
     let inner_chunks = Layout::default()
@@ -425,32 +586,55 @@ fn render_editor(f: &mut Frame, app: &App) {
         Span::raw(" Owner: "),
         Span::styled(owner_display, owner_style),
         if !owner_valid {
-            Span::styled(" (unknown user)", Style::default().fg(Color::Red).add_modifier(Modifier::ITALIC))
+            Span::styled(
+                " (unknown user)",
+                Style::default()
+                    .fg(Color::Red)
+                    .add_modifier(Modifier::ITALIC),
+            )
         } else if owner_changed {
-            Span::styled(" (changed)", Style::default().fg(Color::Yellow).add_modifier(Modifier::ITALIC))
+            Span::styled(
+                " (changed)",
+                Style::default()
+                    .fg(Color::Yellow)
+                    .add_modifier(Modifier::ITALIC),
+            )
         } else {
             Span::raw("")
-        }
+        },
     ]))
-    .block(Block::default().borders(Borders::BOTTOM).border_style(owner_border));
+    .block(
+        Block::default()
+            .borders(Borders::BOTTOM)
+            .border_style(owner_border),
+    );
 
     let group_para = Paragraph::new(Line::from(vec![
         Span::raw(" Group: "),
         Span::styled(group_display, group_style),
         if !group_valid {
-            Span::styled(" (unknown group)", Style::default().fg(Color::Red).add_modifier(Modifier::ITALIC))
+            Span::styled(
+                " (unknown group)",
+                Style::default()
+                    .fg(Color::Red)
+                    .add_modifier(Modifier::ITALIC),
+            )
         } else if group_changed {
-            Span::styled(" (changed)", Style::default().fg(Color::Yellow).add_modifier(Modifier::ITALIC))
+            Span::styled(
+                " (changed)",
+                Style::default()
+                    .fg(Color::Yellow)
+                    .add_modifier(Modifier::ITALIC),
+            )
         } else {
             Span::raw("")
-        }
+        },
     ]))
     .block(Block::default().border_style(group_border));
 
     f.render_widget(owner_group_block, right_chunks[2]);
     f.render_widget(owner_para, inner_chunks[0]);
     f.render_widget(group_para, inner_chunks[1]);
-
 
     // 3. Footer (Buttons + Shortcut Bar)
     let footer_chunks = Layout::default()
@@ -471,9 +655,14 @@ fn render_editor(f: &mut Frame, app: &App) {
                 .borders(Borders::ALL)
                 .border_type(BorderType::Rounded)
                 .border_style(if apply_focused {
-                    Style::default().bg(Color::Green).fg(Color::Black).add_modifier(Modifier::BOLD)
+                    Style::default()
+                        .bg(Color::Green)
+                        .fg(Color::Black)
+                        .add_modifier(Modifier::BOLD)
                 } else if changes_pending {
-                    Style::default().fg(Color::Green).add_modifier(Modifier::BOLD)
+                    Style::default()
+                        .fg(Color::Green)
+                        .add_modifier(Modifier::BOLD)
                 } else {
                     Style::default().fg(Color::DarkGray)
                 }),
@@ -489,7 +678,10 @@ fn render_editor(f: &mut Frame, app: &App) {
                 .borders(Borders::ALL)
                 .border_type(BorderType::Rounded)
                 .border_style(if quit_focused {
-                    Style::default().bg(Color::Red).fg(Color::Black).add_modifier(Modifier::BOLD)
+                    Style::default()
+                        .bg(Color::Red)
+                        .fg(Color::Black)
+                        .add_modifier(Modifier::BOLD)
                 } else {
                     Style::default().fg(Color::DarkGray)
                 }),
@@ -498,13 +690,33 @@ fn render_editor(f: &mut Frame, app: &App) {
 
     // Keyboard navigation help
     let shortcut_text = Line::from(vec![
-        Span::styled(" [Arrows/Tab] ", Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD)),
+        Span::styled(
+            " [Arrows/Tab] ",
+            Style::default()
+                .fg(Color::Cyan)
+                .add_modifier(Modifier::BOLD),
+        ),
         Span::raw("Navigate  "),
-        Span::styled(" [Space] ", Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD)),
+        Span::styled(
+            " [Space] ",
+            Style::default()
+                .fg(Color::Cyan)
+                .add_modifier(Modifier::BOLD),
+        ),
         Span::raw("Toggle checkbox  "),
-        Span::styled(" [B] ", Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD)),
+        Span::styled(
+            " [B] ",
+            Style::default()
+                .fg(Color::Cyan)
+                .add_modifier(Modifier::BOLD),
+        ),
         Span::raw("Back to browser  "),
-        Span::styled(" [755, 644] ", Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD)),
+        Span::styled(
+            " [755, 644] ",
+            Style::default()
+                .fg(Color::Cyan)
+                .add_modifier(Modifier::BOLD),
+        ),
         Span::raw("Edit Octal directly"),
     ]);
     let shortcut_para = Paragraph::new(shortcut_text)
@@ -535,7 +747,9 @@ fn render_popup(f: &mut Frame, app: &App) {
     let title_style = if is_error {
         Style::default().fg(Color::Red).add_modifier(Modifier::BOLD)
     } else {
-        Style::default().fg(Color::Green).add_modifier(Modifier::BOLD)
+        Style::default()
+            .fg(Color::Green)
+            .add_modifier(Modifier::BOLD)
     };
 
     let status_str = if is_error { "ERROR" } else { "INFO" };
@@ -547,7 +761,12 @@ fn render_popup(f: &mut Frame, app: &App) {
         Line::from(""),
         Line::from(vec![
             Span::styled(" Press ", Style::default().fg(Color::DarkGray)),
-            Span::styled(" [Esc] / [Enter] ", Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD)),
+            Span::styled(
+                " [Esc] / [Enter] ",
+                Style::default()
+                    .fg(Color::Cyan)
+                    .add_modifier(Modifier::BOLD),
+            ),
             Span::styled(" to close ", Style::default().fg(Color::DarkGray)),
         ]),
     ]);
