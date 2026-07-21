@@ -2,7 +2,6 @@ name: ⚡ Refactoring & Performance
 description: Suggest code restructuring, performance optimizations, or dependency updates for rwx
 title: "[ENHANCEMENT]: "
 labels: ["enhancement", "performance", "triage"]
-assignees: []
 body:
   - type: markdown
     attributes:

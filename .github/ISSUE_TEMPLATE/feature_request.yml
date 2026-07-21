@@ -2,7 +2,6 @@ name: 💡 Feature Request
 description: Propose a new feature, improvement, or idea for rwx
 title: "[FEAT]: "
 labels: ["enhancement", "triage"]
-assignees: []
 body:
   - type: markdown
     attributes:
