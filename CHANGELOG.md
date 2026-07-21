@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.5] - 2026-07-21
+
+### Added
+
+- Initialized `CHANGELOG.md` following the Keep a Changelog format.
+- Automated release note generation from `CHANGELOG.md` version headers in the release workflow.
+- Added support for allowing dirty working directories in `dist-workspace.toml` for CI workflows.
+
+### Changed
+
+- Expanded the test suite to improve project coverage.
+- Enhanced the CI pipeline to run:
+
+  - `cargo fmt --check`
+  - `cargo clippy -- -D warnings`
+  - `cargo test`
+  - `cargo audit`
+- Updated the release workflow to publish release notes directly from the corresponding `CHANGELOG.md` version section.
+
 ## [1.0.4] - 2026-07-21
 
 ### Added
