@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.6] - 2026-07-24
+
+### Fixed
+
+- Handled cyclic and dangling symbolic links safely during recursive directory operations, preventing infinite loops and unexpected errors (#3).
+- Fixed CLI target validation to allow opening broken or cyclic symbolic links.
+- Used `lchown` instead of `chown` when modifying ownership to avoid dereferencing symbolic links.
+
+### Changed
+
+- Enhanced recursive directory processing to collect and report item errors gracefully as a summary instead of aborting on the first error.
+
 ## [1.0.5] - 2026-07-21
 
 ### Added
