@@ -567,7 +567,11 @@ mod tests {
         app.permissions = FilePermissions::from_mode(0o755);
 
         let res = app.apply_changes();
-        assert!(res.is_ok(), "apply_changes failed on dangling symlink: {:?}", res);
+        assert!(
+            res.is_ok(),
+            "apply_changes failed on dangling symlink: {:?}",
+            res
+        );
 
         let m1 = fs::metadata(&file1).unwrap();
         assert_eq!(m1.permissions().mode() & 0o777, 0o755);
@@ -591,7 +595,11 @@ mod tests {
 
         let mut app = create_test_app();
         let res = app.open_target(link_a);
-        assert!(res.is_ok(), "open_target failed on cyclic symlink: {:?}", res);
+        assert!(
+            res.is_ok(),
+            "open_target failed on cyclic symlink: {:?}",
+            res
+        );
         assert!(!app.is_dir);
 
         let _ = fs::remove_dir_all(&temp_dir);
