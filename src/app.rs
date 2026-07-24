@@ -1,7 +1,7 @@
 use nix::unistd::{Gid, Group, Uid, User};
 use std::os::unix::fs::MetadataExt;
 use std::os::unix::fs::PermissionsExt;
-use std::os::unix::fs::chown;
+use std::os::unix::fs::lchown;
 use std::path::{Path, PathBuf};
 
 use crate::permissions::FilePermissions;
@@ -178,6 +178,7 @@ impl App {
 
     pub fn open_target(&mut self, path: PathBuf) -> Result<(), String> {
         let metadata = std::fs::metadata(&path)
+            .or_else(|_| std::fs::symlink_metadata(&path))
             .map_err(|e| format!("Failed to read metadata for {:?}: {}", path, e))?;
 
         self.target_path = path;
@@ -341,27 +342,60 @@ impl App {
             return Err(format!("Invalid group name: '{}'", self.group_input));
         };
 
-        let apply_to = |p: &Path| -> Result<(), std::io::Error> {
-            let perms = std::fs::Permissions::from_mode(mode);
-            std::fs::set_permissions(p, perms)?;
+        let apply_to = |p: &Path, is_symlink: bool| -> Result<(), std::io::Error> {
+            let should_set_perms = if self.recursive {
+                !is_symlink
+            } else if is_symlink {
+                p.exists()
+            } else {
+                true
+            };
+
+            if should_set_perms {
+                let perms = std::fs::Permissions::from_mode(mode);
+                std::fs::set_permissions(p, perms)?;
+            }
 
             if uid.is_some() || gid.is_some() {
                 let u_raw = uid.map(|u| u.as_raw());
                 let g_raw = gid.map(|g| g.as_raw());
-                chown(p, u_raw, g_raw)?;
+                lchown(p, u_raw, g_raw)?;
             }
             Ok(())
         };
 
         if self.recursive && self.is_dir {
-            for entry in walkdir::WalkDir::new(&self.target_path) {
-                let entry =
-                    entry.map_err(|e| format!("Error reading directory structure: {}", e))?;
-                apply_to(entry.path())
-                    .map_err(|e| format!("Failed to apply to {:?}: {}", entry.path(), e))?;
+            let mut errors = Vec::new();
+            for entry_res in walkdir::WalkDir::new(&self.target_path) {
+                match entry_res {
+                    Ok(entry) => {
+                        let path = entry.path();
+                        let is_symlink = entry.file_type().is_symlink();
+                        if let Err(e) = apply_to(path, is_symlink) {
+                            errors.push(format!("Failed to apply to {:?}: {}", path, e));
+                        }
+                    }
+                    Err(e) => {
+                        errors.push(format!("Error reading directory structure: {}", e));
+                    }
+                }
+            }
+
+            if !errors.is_empty() {
+                return Err(format!(
+                    "Failed to apply changes to {} item(s):\n{}",
+                    errors.len(),
+                    errors.join("\n")
+                ));
             }
         } else {
-            apply_to(&self.target_path).map_err(|e| format!("Failed to apply changes: {}", e))?;
+            let is_symlink = self
+                .target_path
+                .symlink_metadata()
+                .map(|m| m.file_type().is_symlink())
+                .unwrap_or(false);
+            apply_to(&self.target_path, is_symlink)
+                .map_err(|e| format!("Failed to apply changes: {}", e))?;
         }
 
         self.orig_permissions = self.permissions;
@@ -470,5 +504,104 @@ mod tests {
 
         app.group_input = "1000".to_string();
         assert!(app.validate_group());
+    }
+
+    #[test]
+    fn test_recursive_apply_with_cyclic_symlink() {
+        use std::fs;
+        use std::os::unix::fs::symlink;
+
+        let temp_dir = std::env::temp_dir().join("rwx_test_cyclic_symlink");
+        let _ = fs::remove_dir_all(&temp_dir);
+        fs::create_dir_all(temp_dir.join("sub")).unwrap();
+
+        let file1 = temp_dir.join("file1.txt");
+        let file2 = temp_dir.join("sub/file2.txt");
+        fs::write(&file1, "hello").unwrap();
+        fs::write(&file2, "world").unwrap();
+
+        let poison_dir = temp_dir.join("sub/poison");
+        fs::create_dir_all(&poison_dir).unwrap();
+        let link_a = poison_dir.join("link_a");
+        let link_b = poison_dir.join("link_b");
+        symlink("link_b", &link_a).unwrap();
+        symlink("link_a", &link_b).unwrap();
+
+        let mut app = create_test_app();
+        app.target_path = temp_dir.clone();
+        app.is_dir = true;
+        app.recursive = true;
+        app.permissions = FilePermissions::from_mode(0o755);
+
+        let res = app.apply_changes();
+        assert!(res.is_ok(), "apply_changes failed: {:?}", res);
+
+        let m1 = fs::metadata(&file1).unwrap();
+        assert_eq!(m1.permissions().mode() & 0o777, 0o755);
+
+        let m2 = fs::metadata(&file2).unwrap();
+        assert_eq!(m2.permissions().mode() & 0o777, 0o755);
+
+        let _ = fs::remove_dir_all(&temp_dir);
+    }
+
+    #[test]
+    fn test_recursive_apply_with_dangling_symlink() {
+        use std::fs;
+        use std::os::unix::fs::symlink;
+
+        let temp_dir = std::env::temp_dir().join("rwx_test_dangling_symlink");
+        let _ = fs::remove_dir_all(&temp_dir);
+        fs::create_dir_all(&temp_dir).unwrap();
+
+        let file1 = temp_dir.join("file1.txt");
+        fs::write(&file1, "hello").unwrap();
+
+        let dangling = temp_dir.join("dangling_link");
+        symlink("nonexistent_file", &dangling).unwrap();
+
+        let mut app = create_test_app();
+        app.target_path = temp_dir.clone();
+        app.is_dir = true;
+        app.recursive = true;
+        app.permissions = FilePermissions::from_mode(0o755);
+
+        let res = app.apply_changes();
+        assert!(
+            res.is_ok(),
+            "apply_changes failed on dangling symlink: {:?}",
+            res
+        );
+
+        let m1 = fs::metadata(&file1).unwrap();
+        assert_eq!(m1.permissions().mode() & 0o777, 0o755);
+
+        let _ = fs::remove_dir_all(&temp_dir);
+    }
+
+    #[test]
+    fn test_open_target_cyclic_symlink() {
+        use std::fs;
+        use std::os::unix::fs::symlink;
+
+        let temp_dir = std::env::temp_dir().join("rwx_test_open_cyclic");
+        let _ = fs::remove_dir_all(&temp_dir);
+        fs::create_dir_all(&temp_dir).unwrap();
+
+        let link_a = temp_dir.join("link_a");
+        let link_b = temp_dir.join("link_b");
+        symlink("link_b", &link_a).unwrap();
+        symlink("link_a", &link_b).unwrap();
+
+        let mut app = create_test_app();
+        let res = app.open_target(link_a);
+        assert!(
+            res.is_ok(),
+            "open_target failed on cyclic symlink: {:?}",
+            res
+        );
+        assert!(!app.is_dir);
+
+        let _ = fs::remove_dir_all(&temp_dir);
     }
 }

@@ -58,7 +58,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Handle CLI arguments
     if let Some(target_path) = args.path {
-        if target_path.exists() {
+        if target_path.symlink_metadata().is_ok() {
             if let Err(e) = app.open_target(target_path) {
                 app.message = Some((e, true));
                 app.show_popup = true;
